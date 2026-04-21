@@ -1,0 +1,15 @@
+---
+description: Padrões essenciais de frontend deste projeto
+alwaysApply: true
+---
+
+# Frontend Core Patterns
+
+- Stack base: Vite + React + TypeScript (`.tsx` para UI).
+- Implementar telas primeiro de forma simples e direta; evitar abstrações prematuras.
+- Em tarefas de layout, manter a estrutura em um componente único até pedido explícito para quebrar em componentes.
+- CSS deve seguir BEM (`.bloco__elemento--modificador`), com nomes claros e consistentes.
+- Centralizar tokens visuais em variáveis CSS (`:root`) para cores, spacing, tipografia, radius e sombras.
+- Reutilizar variáveis/tamanhos em vez de valores soltos repetidos.
+- Priorizar consistência visual: espaçamentos simétricos, hierarquia tipográfica e alinhamento previsível.
+- Não adicionar comportamento/integrações sem solicitação explícita do usuário.
