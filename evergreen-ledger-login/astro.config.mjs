@@ -5,5 +5,5 @@ const isCI = process.env.CI === 'true';
 
 // https://astro.build/config
 export default defineConfig({
-	base: isCI ? '/evergreen-ledger-login/' : '/'
+	base: isCI ? (process.env.SITE_BASE ?? '/evergreen-ledger-login/') : '/'
 });

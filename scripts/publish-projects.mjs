@@ -48,13 +48,29 @@ const loadPackageJson = (projectDir) => {
   }
 };
 
-const run = (command, cwd) => {
+const getRepoName = () => {
+  if (process.env.GITHUB_REPOSITORY?.includes("/")) {
+    return process.env.GITHUB_REPOSITORY.split("/")[1];
+  }
+  try {
+    const remoteUrl = execSync("git config --get remote.origin.url", {
+      cwd: rootDir,
+      encoding: "utf8",
+    }).trim();
+    const match = remoteUrl.match(/github\.com[:/](.+?)\/(.+?)(?:\.git)?$/i);
+    if (match) return match[2];
+  } catch {}
+  return "ai-frontend-lab";
+};
+
+const run = (command, cwd, envOverrides = {}) => {
   execSync(command, {
     cwd,
     stdio: "inherit",
     env: {
       ...process.env,
       CI: "true",
+      ...envOverrides,
     },
   });
 };
@@ -96,7 +112,8 @@ const publishProjects = () => {
       run("npm ci --no-audit --no-fund", projectDir);
 
       console.log(`[${project}] Building project...`);
-      run("npm run build", projectDir);
+      const repoName = getRepoName();
+      run("npm run build", projectDir, { SITE_BASE: `/${repoName}/${project}/` });
 
       const distDir = path.join(projectDir, "dist");
       if (!fs.existsSync(distDir)) {
