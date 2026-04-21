@@ -1,0 +1,318 @@
+---
+const appName: string = 'Bugdet';
+const decorativeImageUrl: string = 'https://picsum.photos/seed/mountains/400/600';
+---
+
+<main class="sign-in">
+	<div class="sign-in__noise" aria-hidden="true"></div>
+
+	<section class="sign-in__card" aria-label="Sign in card">
+		<div class="sign-in__form-col">
+			<p class="sign-in__title">Welcome back</p>
+			<p class="sign-in__subtitle">Login to your {appName} account</p>
+
+			<form class="sign-in__form" aria-label="Visual sign in form">
+				<div class="form-field">
+					<label class="form-field__label" for="email">Email</label>
+					<input
+						class="form-field__input"
+						id="email"
+						type="email"
+						placeholder="m@example.com"
+						autocomplete="email"
+					/>
+				</div>
+
+				<div class="form-field">
+					<div class="form-field__label-row">
+						<label class="form-field__label" for="password">Password</label>
+						<a class="form-field__hint" href="#">Forgot your password?</a>
+					</div>
+					<input
+						class="form-field__input"
+						id="password"
+						type="password"
+						placeholder=""
+						autocomplete="current-password"
+					/>
+				</div>
+
+				<button class="btn btn--primary" type="button">Login</button>
+			</form>
+
+			<p class="sign-in__meta">
+				Don't have an account?
+				<a href="#">Sign up</a>
+			</p>
+		</div>
+
+		<div class="sign-in__image-col" aria-hidden="true">
+			<img src={decorativeImageUrl} alt="Decorative mountain watercolor scene" loading="lazy" />
+		</div>
+	</section>
+
+	<p class="sign-in__legal">
+		By clicking continue, you agree to our <a href="#">Terms of Service</a> and
+		<a href="#">Privacy Policy</a>.
+	</p>
+</main>
+
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Lora:wght@500;600&display=swap');
+
+	:root {
+		--color-bg: #d4c5a0;
+		--color-card: #f5f0e8;
+		--color-title: #3b2d1f;
+		--color-text: #4e3b28;
+		--color-muted: #7d6b56;
+		--color-input-bg: #f8f2e9;
+		--color-input-border: #b9a88d;
+		--color-primary: #7a8c5e;
+		--color-primary-hover: #6a7a52;
+		--color-primary-text: #ffffff;
+		--color-shadow: rgba(52, 36, 17, 0.22);
+		--color-link: #5d4a35;
+		--space-1: 0.25rem;
+		--space-2: 0.5rem;
+		--space-3: 0.75rem;
+		--space-4: 1rem;
+		--space-5: 1.25rem;
+		--space-6: 1.5rem;
+		--space-8: 2rem;
+		--radius-sm: 0.5rem;
+		--radius-md: 0.75rem;
+		--radius-lg: 0.9rem;
+		--font-title: 'Lora', Georgia, serif;
+		--font-body: 'DM Sans', 'Segoe UI', sans-serif;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	body {
+		margin: 0;
+	}
+
+	.sign-in {
+		position: relative;
+		min-height: 100dvh;
+		display: grid;
+		place-items: center;
+		padding: clamp(1.5rem, 4vw, 2.5rem);
+		background-color: var(--color-bg);
+		overflow: hidden;
+		font-family: var(--font-body);
+		color: var(--color-text);
+	}
+
+	.sign-in__noise {
+		position: absolute;
+		inset: 0;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+		mix-blend-mode: multiply;
+		opacity: 0.45;
+		pointer-events: none;
+	}
+
+	.sign-in__card {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		width: min(840px, 100%);
+		background: var(--color-card);
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+		box-shadow: 0 18px 42px -22px var(--color-shadow);
+		border: 1px solid rgba(90, 70, 45, 0.2);
+		z-index: 1;
+	}
+
+	.sign-in__form-col {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: clamp(1.4rem, 2.5vw, 2rem);
+		gap: var(--space-4);
+	}
+
+	.sign-in__title {
+		margin: 0;
+		font-family: var(--font-title);
+		font-size: clamp(1.5rem, 3.3vw, 2rem);
+		line-height: 1.15;
+		color: var(--color-title);
+	}
+
+	.sign-in__subtitle {
+		margin: calc(var(--space-2) * -1) 0 0;
+		font-size: 0.95rem;
+		color: var(--color-muted);
+	}
+
+	.sign-in__form {
+		display: grid;
+		gap: var(--space-4);
+	}
+
+	.form-field {
+		display: grid;
+		gap: var(--space-2);
+	}
+
+	.form-field__label-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-3);
+	}
+
+	.form-field__label {
+		font-size: 0.83rem;
+		font-weight: 500;
+		color: var(--color-title);
+	}
+
+	.form-field__hint {
+		font-size: 0.74rem;
+		color: var(--color-link);
+		text-decoration: none;
+		border-bottom: 1px solid transparent;
+	}
+
+	.form-field__hint:hover {
+		border-color: currentColor;
+	}
+
+	.form-field__input {
+		width: 100%;
+		height: 2.5rem;
+		padding: 0.65rem 0.8rem;
+		font: inherit;
+		font-size: 0.9rem;
+		color: var(--color-text);
+		background: var(--color-input-bg);
+		border: 1px solid var(--color-input-border);
+		border-radius: var(--radius-sm);
+		outline: none;
+		transition: border-color 120ms ease, box-shadow 120ms ease;
+	}
+
+	.form-field__input:focus-visible {
+		border-color: var(--color-primary);
+		box-shadow: 0 0 0 3px rgba(122, 140, 94, 0.22);
+	}
+
+	.form-field__input::placeholder {
+		color: color-mix(in srgb, var(--color-muted) 70%, white);
+	}
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 2.6rem;
+		padding: 0.7rem 1rem;
+		border: none;
+		border-radius: var(--radius-sm);
+		font: inherit;
+		font-size: 0.92rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: transform 140ms ease, background-color 140ms ease;
+	}
+
+	.btn--primary {
+		background: var(--color-primary);
+		color: var(--color-primary-text);
+	}
+
+	.btn--primary:hover {
+		background: var(--color-primary-hover);
+	}
+
+	.btn--primary:active {
+		transform: translateY(1px);
+	}
+
+	.sign-in__meta {
+		margin: 0;
+		text-align: center;
+		font-size: 0.85rem;
+		color: var(--color-muted);
+	}
+
+	.sign-in__meta a {
+		margin-left: var(--space-1);
+		color: var(--color-link);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.sign-in__image-col {
+		min-height: 420px;
+	}
+
+	.sign-in__image-col img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 0 var(--radius-md) var(--radius-md) 0;
+	}
+
+	.sign-in__legal {
+		position: relative;
+		z-index: 1;
+		margin: var(--space-5) 0 0;
+		text-align: center;
+		font-size: 0.74rem;
+		color: color-mix(in srgb, var(--color-text) 70%, white);
+	}
+
+	.sign-in__legal a {
+		color: inherit;
+		text-decoration: underline;
+	}
+
+	@media (max-width: 768px) {
+		.sign-in {
+			padding: var(--space-5);
+		}
+
+		.sign-in__card {
+			grid-template-columns: 1fr;
+		}
+
+		.sign-in__form-col {
+			padding: var(--space-6);
+		}
+
+		.sign-in__image-col {
+			display: none;
+		}
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--color-bg: #1a1410;
+			--color-card: #2a1f18;
+			--color-title: #f2dfc6;
+			--color-text: #e4cfb4;
+			--color-muted: #c7ad8b;
+			--color-input-bg: #34271f;
+			--color-input-border: #735b46;
+			--color-primary: #829760;
+			--color-primary-hover: #92a970;
+			--color-shadow: rgba(0, 0, 0, 0.5);
+			--color-link: #e6c598;
+		}
+
+		.sign-in__noise {
+			opacity: 0.3;
+			mix-blend-mode: soft-light;
+		}
+	}
+</style>
