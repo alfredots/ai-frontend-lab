@@ -115,15 +115,23 @@ const publishProjects = () => {
       const repoName = getRepoName();
       run("npm run build", projectDir, { SITE_BASE: `/${repoName}/${project}/` });
 
-      const distDir = path.join(projectDir, "dist");
-      if (!fs.existsSync(distDir)) {
-        console.warn(`[${project}] Skipped: dist folder not found after build.`);
+      const outputCandidates = ["dist", "out", "build"];
+      const outputDirName = outputCandidates.find((candidate) =>
+        fs.existsSync(path.join(projectDir, candidate)),
+      );
+
+      if (!outputDirName) {
+        console.warn(
+          `[${project}] Skipped: no supported output folder found (dist, out, build).`,
+        );
         continue;
       }
 
-      copyDirectory(distDir, projectOutputDir);
+      const outputDir = path.join(projectDir, outputDirName);
+
+      copyDirectory(outputDir, projectOutputDir);
       published.push(project);
-      console.log(`[${project}] Published to docs/${project}.`);
+      console.log(`[${project}] Published ${outputDirName} to docs/${project}.`);
       continue;
     }
 
