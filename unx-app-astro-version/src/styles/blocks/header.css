@@ -1,0 +1,97 @@
+/*
+ * Block: .header
+ * --------------
+ * Cabecalho com logo UNX a esquerda, navegacao ao centro e botao Dashboard
+ * a direita. No mobile, a nav e o botao somem e aparece um icone de menu.
+ *
+ * Elements:
+ *   .header__logo              — titulo "UNX"
+ *   .header__nav               — lista de links
+ *   .header__nav-link          — link de navegacao
+ *   .header__dashboard-button  — CTA secundario (desktop)
+ *   .header__menu-icon         — icone hamburguer (mobile)
+ */
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3rem 1rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.header__logo {
+  margin: 0;
+  color: var(--unx-color-white);
+  font-size: 2.25rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.header__nav {
+  display: none;
+  align-items: center;
+  gap: 3.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.header__nav-link {
+  color: var(--unx-color-white);
+  text-decoration: none;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.header__nav-link:hover {
+  opacity: 0.9;
+}
+
+.header__dashboard-button {
+  display: none;
+  color: var(--unx-color-white);
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: var(--unx-color-nero);
+  padding: 0.875rem 2rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.header__dashboard-button:hover {
+  background-color: rgba(36, 36, 36, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.header__menu-icon {
+  display: inline-flex;
+}
+
+.header__menu-icon:hover {
+  opacity: 0.9;
+}
+
+@media (min-width: 640px) {
+  .header {
+    padding: 1.75rem 6rem 0;
+  }
+
+  .header__logo {
+    width: 158px;
+  }
+
+  .header__nav {
+    display: flex;
+  }
+
+  .header__dashboard-button {
+    display: inline-block;
+  }
+
+  .header__menu-icon {
+    display: none;
+  }
+}

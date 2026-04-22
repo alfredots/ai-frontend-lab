@@ -1,0 +1,49 @@
+/*
+ * Block: .page
+ * ------------
+ * Container root da landing page. Define o fundo, os limites de viewport e
+ * organiza verticalmente Header, Hero e imagem do app.
+ *
+ * Elements:
+ *   .page__blur     — borrao decorativo azul atras do conteudo
+ *   .page__image    — wrapper da imagem do app no rodape do hero
+ */
+
+.page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: var(--unx-color-cursed-black);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.page__blur {
+  position: absolute;
+  top: 6.688rem;
+  left: 14.063rem;
+  width: 421px;
+  height: 431px;
+  background-color: var(--unx-color-warm-blue);
+  border-radius: 9999px;
+  filter: blur(312px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page__image {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 640px) {
+  .page__image {
+    margin-top: 1.75rem;
+  }
+}

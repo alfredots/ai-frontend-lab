@@ -1,0 +1,26 @@
+/*
+ * Design tokens — UNX landing page
+ * --------------------------------
+ * Mesmas cores/fontes da versao Next.js original (tailwind.config.js).
+ */
+:root {
+  color-scheme: dark;
+
+  /* cores (nomes identicos ao tailwind.config.js original) */
+  --unx-color-cursed-black: #131313;
+  --unx-color-palladium: #b0b0b0;
+  --unx-color-nero: #242424;
+  --unx-color-ultramarine: #2104d8;
+  --unx-color-warm-blue: #3747d7;
+  --unx-color-white: #ffffff;
+
+  /* gradiente do titulo destacado do hero */
+  --unx-gradient-text: linear-gradient(270deg, #a5d9ff 7.6%, #7399fb 94.15%);
+
+  /* fontes */
+  --unx-font-inter: "Inter", system-ui, -apple-system, sans-serif;
+  --unx-font-poppins: "Poppins", var(--unx-font-inter);
+
+  /* breakpoints (apenas para documentacao — usados em @media) */
+  --unx-breakpoint-sm: 640px;
+}

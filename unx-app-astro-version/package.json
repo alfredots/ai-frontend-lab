@@ -1,0 +1,28 @@
+{
+  "name": "unx-app-astro-version",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Versao Astro + TypeScript + CSS BEM da landing page UNX (originalmente em Next.js).",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "astro": "^4.16.18"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/node": "^22.10.2",
+    "happy-dom": "^15.11.7",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

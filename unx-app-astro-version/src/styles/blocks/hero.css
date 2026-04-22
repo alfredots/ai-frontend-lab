@@ -1,0 +1,81 @@
+/*
+ * Block: .hero
+ * ------------
+ * Secao central da landing: titulo em duas linhas (segunda em gradiente),
+ * subtitulo em Poppins, e CTA ultramarine "Try this app".
+ *
+ * Elements:
+ *   .hero__title           — titulo de impacto
+ *   .hero__subtitle        — texto de apoio
+ *   .hero__cta             — botao principal
+ *
+ * Modifiers:
+ *   .hero__title--gradient — pinta o texto com o gradiente azul
+ */
+
+.hero {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero__title {
+  margin: 0;
+  color: var(--unx-color-white);
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 700;
+  text-align: center;
+}
+
+.hero__title--gradient {
+  margin-top: 1.25rem;
+  background: var(--unx-gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero__subtitle {
+  margin: 2.25rem 0 0;
+  padding: 0 1rem;
+  max-width: 287px;
+  color: var(--unx-color-palladium);
+  font-family: var(--unx-font-poppins);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.hero__cta {
+  margin-top: 2.25rem;
+  padding: 1.25rem 3rem;
+  color: var(--unx-color-white);
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: var(--unx-color-ultramarine);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hero__cta:hover {
+  background-color: rgba(33, 4, 216, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (min-width: 640px) {
+  .hero__title {
+    font-size: 3.75rem;
+    line-height: 1.1;
+  }
+
+  .hero__subtitle {
+    max-width: 670px;
+    font-size: 1.125rem;
+  }
+}

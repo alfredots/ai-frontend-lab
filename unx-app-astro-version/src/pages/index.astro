@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+
+const appImageUrl = `${import.meta.env.BASE_URL}app-image.png`;
+---
+
+<BaseLayout title="UNX Slick App">
+  <div class="page">
+    <div class="page__blur" aria-hidden="true"></div>
+
+    <Header />
+    <Hero />
+
+    <div class="page__image">
+      <img
+        src={appImageUrl}
+        width="1024"
+        height="418"
+        alt="imagem do app"
+        loading="eager"
+      />
+    </div>
+  </div>
+</BaseLayout>
