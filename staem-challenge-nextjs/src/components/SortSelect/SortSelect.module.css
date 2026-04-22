@@ -1,21 +1,59 @@
 .sort {
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 0.5rem;
-  width: min(100%, 16rem);
+  width: auto;
 }
 
 .sort__label {
-  color: #bae6fd;
+  color: #ffffff;
   font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  line-height: 95.6%;
+  min-width: 3.75rem;
 }
 
 .sort__select {
-  border: 1px solid #0f4d78;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 0;
   border-radius: 999px;
-  background-color: #0f2742;
-  color: #f8fafc;
-  padding: 0.7rem 1rem;
-  font-size: 0.95rem;
+  background-color: #1a3a53;
+  background-image: url("/img/arrow-down.svg");
+  background-repeat: no-repeat;
+  background-position-x: 95%;
+  background-position-y: 50%;
+  color: #ffffff;
+  width: 100%;
+  min-width: 10.5rem;
+  padding: 0.625rem 1.4375rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 95.6%;
+}
+
+@media (min-width: 450px) {
+  .sort__select {
+    min-width: 12.0625rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .sort {
+    gap: 0.45rem;
+  }
+
+  .sort__label {
+    min-width: auto;
+    font-size: 0.66rem;
+  }
+
+  .sort__select {
+    min-width: 9.25rem;
+    height: 1.375rem;
+    padding: 0 1.3rem 0 0.75rem;
+    font-size: 0.72rem;
+    background-size: 0.58rem;
+  }
 }

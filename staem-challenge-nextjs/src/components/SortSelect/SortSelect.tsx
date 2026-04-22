@@ -8,10 +8,11 @@ type SortSelectProps = {
 
 export function SortSelect({ value, onChange }: SortSelectProps) {
   return (
-    <label className={styles.sort}>
-      <span className={styles["sort__label"]}>Sort by</span>
+    <div className={styles.sort}>
+      <span className={styles["sort__label"]}>Sort by:</span>
       <select
         className={styles["sort__select"]}
+        aria-label="Sort by"
         value={value}
         onChange={(event) => onChange(event.target.value as SortOption)}
       >
@@ -19,6 +20,6 @@ export function SortSelect({ value, onChange }: SortSelectProps) {
         <option value="price">Price</option>
         <option value="title">Title</option>
       </select>
-    </label>
+    </div>
   );
 }

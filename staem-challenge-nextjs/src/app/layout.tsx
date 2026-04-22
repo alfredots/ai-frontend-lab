@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Sora } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 
-const sora = Sora({
-  variable: "--font-sora",
+const notoSans = Noto_Sans({
+  variable: "--font-noto-sans",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "STAEM Challenge - Next SSG",
-  description: "Catalogo de jogos com App Router, SSG e arquitetura MVVM.",
+  description: "Project listing PC games available on the Steam platform.",
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={sora.variable}>
+    <html lang="pt-BR" className={notoSans.variable}>
       <body>{children}</body>
     </html>
   );

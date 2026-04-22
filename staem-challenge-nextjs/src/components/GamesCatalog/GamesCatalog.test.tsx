@@ -12,7 +12,7 @@ describe("GamesCatalog", () => {
     await user.type(screen.getByRole("textbox"), "hades");
 
     expect(screen.getByRole("link", { name: "Hades" })).toBeInTheDocument();
-    expect(screen.getByText("1 game(s) found")).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(1);
   });
 
   it("sorts games by title", async () => {

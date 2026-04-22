@@ -17,7 +17,6 @@ export function GamesCatalog({ allGames, pageSize }: GamesCatalogProps) {
     searchTerm,
     sortOption,
     visibleGames,
-    totalGames,
     canLoadMore,
     handleSearchChange,
     handleSortChange,
@@ -30,8 +29,6 @@ export function GamesCatalog({ allGames, pageSize }: GamesCatalogProps) {
         <SearchBar value={searchTerm} onChange={handleSearchChange} />
         <SortSelect value={sortOption} onChange={handleSortChange} />
       </div>
-
-      <p className={styles["catalog__summary"]}>{totalGames} game(s) found</p>
 
       <div className={styles["catalog__list"]}>
         {visibleGames.map((game) => (

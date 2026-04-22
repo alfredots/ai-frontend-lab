@@ -26,8 +26,15 @@ export function GameCard({ game }: GameCardProps) {
           {game.title}
         </a>
         <p className={styles["card__tags"]}>{game.tags.join(", ")}</p>
+        <div className={styles["card__bar"]} aria-hidden="true" />
         <footer className={styles["card__footer"]}>
-          <span className={styles["card__platform"]}>{game.platforms.join(" /")}</span>
+          <Image
+            className={styles["card__platform-icon"]}
+            src="/img/windows-icon.svg"
+            alt="windows"
+            width={40}
+            height={40}
+          />
           <strong className={styles["card__price"]}>${game.price}</strong>
         </footer>
       </div>

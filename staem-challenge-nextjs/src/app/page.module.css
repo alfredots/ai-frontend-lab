@@ -2,16 +2,20 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 1.5rem 1rem 2rem;
+  padding: 0;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(58, 90, 135, 0.5), rgba(27, 40, 55, 0) 42%),
+    #1b2837;
 }
 
 .home__shell {
-  width: min(72rem, 100%);
-  border-radius: 1rem;
-  background: radial-gradient(circle at 10% 0%, rgba(34, 211, 238, 0.18), transparent 40%),
-    radial-gradient(circle at 90% 100%, rgba(56, 189, 248, 0.16), transparent 36%),
-    linear-gradient(160deg, #091526, #07101c 45%, #050c15);
-  border: 1px solid rgba(125, 211, 252, 0.15);
-  box-shadow: 0 1.2rem 2rem rgba(2, 6, 23, 0.35);
-  overflow: hidden;
+  width: min(90rem, 100%);
+  background-color: #1b2837;
+  padding: 0 0.95rem 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .home__shell {
+    padding: 0 1.75rem 2.5rem;
+  }
 }

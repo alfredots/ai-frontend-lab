@@ -13,7 +13,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
         className={styles["search__input"]}
         type="text"
         value={value}
-        placeholder="Type a game title"
+        placeholder="Search"
         onChange={(event) => onChange(event.target.value)}
       />
     </label>

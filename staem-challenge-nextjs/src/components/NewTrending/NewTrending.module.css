@@ -1,19 +1,57 @@
 .trending {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
+  width: 100%;
+  padding-top: 1.95rem;
 }
 
 .trending__line {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #22d3ee, transparent);
+  height: 0.625rem;
+  background: #214b6b;
+}
+
+.trending__line:first-child {
+  width: 0.75rem;
+  border-radius: 0 1.25rem 1.25rem 0;
+}
+
+.trending__line:last-child {
+  width: 100%;
+  max-width: 3.85rem;
+  border-radius: 1.25rem 0 0 1.25rem;
 }
 
 .trending__title {
-  color: #dbeafe;
-  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: #ffffff;
+  min-width: 10.7rem;
+  padding: 0 0.7rem 0 0.55rem;
+  font-size: clamp(1.5rem, 6vw, 1.75rem);
+  font-weight: 700;
+  line-height: 95.6%;
+}
+
+@media (min-width: 768px) {
+  .trending {
+    padding-top: 1.25rem;
+  }
+
+  .trending__line:first-child {
+    width: 1.25rem;
+  }
+
+  .trending__line:last-child {
+    max-width: 4.25rem;
+  }
+
+  .trending__title {
+    min-width: 16.3rem;
+    padding: 0 0.8rem;
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trending__line:last-child {
+    border-radius: 1.25rem;
+  }
 }
