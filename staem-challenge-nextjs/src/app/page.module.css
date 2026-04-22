@@ -1,0 +1,21 @@
+.home {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(58, 90, 135, 0.5), rgba(27, 40, 55, 0) 42%),
+    #1b2837;
+}
+
+.home__shell {
+  width: min(90rem, 100%);
+  background-color: #1b2837;
+  padding: 0 0.95rem 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .home__shell {
+    padding: 0 1.75rem 2.5rem;
+  }
+}
