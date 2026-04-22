@@ -1,0 +1,25 @@
+---
+import MenuIcon from "./MenuIcon.astro";
+
+const navItems = ["Products", "About", "Resources", "Contact"] as const;
+---
+
+<header class="header">
+  <h1 class="header__logo">UNX</h1>
+
+  <nav aria-label="Principal">
+    <ul class="header__nav">
+      {
+        navItems.map((text) => (
+          <li>
+            <a href="#" class="header__nav-link">{text}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <button class="header__dashboard-button" type="button">Dashboard</button>
+
+  <MenuIcon />
+</header>

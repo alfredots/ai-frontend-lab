@@ -1,0 +1,9 @@
+/*
+ * Entry point de estilos globais.
+ * Ordem: tokens -> reset -> blocos.
+ */
+@import "./tokens.css";
+@import "./reset.css";
+@import "./blocks/page.css";
+@import "./blocks/header.css";
+@import "./blocks/hero.css";
