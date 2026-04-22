@@ -1,0 +1,19 @@
+.trending {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.trending__line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #22d3ee, transparent);
+}
+
+.trending__title {
+  color: #dbeafe;
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

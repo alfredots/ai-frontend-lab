@@ -1,0 +1,21 @@
+.sort {
+  display: grid;
+  gap: 0.5rem;
+  width: min(100%, 16rem);
+}
+
+.sort__label {
+  color: #bae6fd;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.sort__select {
+  border: 1px solid #0f4d78;
+  border-radius: 999px;
+  background-color: #0f2742;
+  color: #f8fafc;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+}

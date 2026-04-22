@@ -1,0 +1,55 @@
+.card {
+  width: 100%;
+  max-width: 68rem;
+  display: grid;
+  gap: 1rem;
+  padding: 0.8rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(140deg, rgba(12, 33, 56, 0.9), rgba(10, 22, 37, 0.95));
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.card__image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.card__content {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.card__title {
+  color: #f0f9ff;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.card__tags {
+  color: #93c5fd;
+  font-size: 0.92rem;
+}
+
+.card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card__platform {
+  color: #7dd3fc;
+  font-size: 0.88rem;
+}
+
+.card__price {
+  color: #fef08a;
+}
+
+@media (min-width: 760px) {
+  .card {
+    grid-template-columns: minmax(16rem, 20rem) 1fr;
+    align-items: stretch;
+  }
+}

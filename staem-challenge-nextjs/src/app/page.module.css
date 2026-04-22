@@ -1,0 +1,17 @@
+.home {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.home__shell {
+  width: min(72rem, 100%);
+  border-radius: 1rem;
+  background: radial-gradient(circle at 10% 0%, rgba(34, 211, 238, 0.18), transparent 40%),
+    radial-gradient(circle at 90% 100%, rgba(56, 189, 248, 0.16), transparent 36%),
+    linear-gradient(160deg, #091526, #07101c 45%, #050c15);
+  border: 1px solid rgba(125, 211, 252, 0.15);
+  box-shadow: 0 1.2rem 2rem rgba(2, 6, 23, 0.35);
+  overflow: hidden;
+}
