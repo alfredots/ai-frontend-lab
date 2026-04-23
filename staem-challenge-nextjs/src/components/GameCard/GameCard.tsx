@@ -30,7 +30,7 @@ export function GameCard({ game }: GameCardProps) {
         <footer className={styles["card__footer"]}>
           <Image
             className={styles["card__platform-icon"]}
-            src="/img/windows-icon.svg"
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/img/windows-icon.svg`}
             alt="windows"
             width={40}
             height={40}
