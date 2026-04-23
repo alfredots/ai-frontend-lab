@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
-const isGithubActions = process.env.GITHUB_ACTIONS === "true";
-const githubRepository = process.env.GITHUB_REPOSITORY || "";
-const repositoryName = githubRepository.split("/")[1] || "";
-const basePath = isGithubActions && repositoryName ? `/${repositoryName}` : "";
+const siteBase = process.env.SITE_BASE || "";
+const basePath = siteBase.replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
   output: "export",
