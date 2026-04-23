@@ -7,7 +7,7 @@ export function Header() {
       <h1 className={styles["header__title"]}>STAEM</h1>
       <button className={styles["header__install"]} type="button">
         <Image
-          src="/img/install-icon.svg"
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/img/install-icon.svg`}
           alt=""
           aria-hidden="true"
           width={16}

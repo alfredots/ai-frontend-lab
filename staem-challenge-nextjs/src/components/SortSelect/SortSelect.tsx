@@ -15,6 +15,7 @@ export function SortSelect({ value, onChange }: SortSelectProps) {
         aria-label="Sort by"
         value={value}
         onChange={(event) => onChange(event.target.value as SortOption)}
+        style={{ backgroundImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/img/arrow-down.svg')` }}
       >
         <option value="default">Default</option>
         <option value="price">Price</option>
