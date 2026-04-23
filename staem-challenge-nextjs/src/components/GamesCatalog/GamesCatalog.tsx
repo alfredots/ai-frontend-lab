@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { Game } from "@/domain/game";
 import { GameCard } from "@/components/GameCard/GameCard";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
@@ -23,6 +24,23 @@ export function GamesCatalog({ allGames, pageSize }: GamesCatalogProps) {
     loadMoreGames,
   } = useGamesCatalogViewModel({ allGames, pageSize });
 
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) loadMoreGames();
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMoreGames]);
+
   return (
     <section className={styles.catalog} aria-label="games catalog">
       <div className={styles["catalog__controls"]}>
@@ -36,15 +54,7 @@ export function GamesCatalog({ allGames, pageSize }: GamesCatalogProps) {
         ))}
       </div>
 
-      {canLoadMore ? (
-        <button
-          className={styles["catalog__load-more"]}
-          onClick={loadMoreGames}
-          type="button"
-        >
-          Load more games
-        </button>
-      ) : null}
+      {canLoadMore && <div ref={sentinelRef} />}
     </section>
   );
 }
