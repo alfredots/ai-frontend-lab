@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversor de extrato / fatura</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --card: #ffffff;
+    --border: #e0ddd4;
+    --text: #2c2c2a;
+    --text-secondary: #6b6a63;
+    --accent: #0f6e56;
+    --danger: #a32d2d;
+    --success: #3b6d11;
+    --warn-bg: #faeeda;
+    --warn-text: #633806;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  p.sub { color: var(--text-secondary); font-size: 14px; margin: 0 0 24px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  label { font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+  textarea, select, input[type=number] {
+    width: 100%;
+    font-size: 13px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+    color: var(--text);
+    font-family: inherit;
+  }
+  textarea { font-family: ui-monospace, "SF Mono", Menlo, monospace; resize: vertical; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
+  .row > div { flex: 1; min-width: 160px; }
+  .row > div.small { max-width: 100px; flex: none; }
+  button {
+    height: 40px;
+    padding: 0 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  button.secondary {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  button:hover { opacity: 0.9; }
+  #statusMsg { font-size: 13px; color: var(--text-secondary); margin-top: 10px; min-height: 18px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  .stat { background: var(--bg); border-radius: var(--radius); padding: 12px 14px; }
+  .stat p { margin: 0; }
+  .stat .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat .value { font-size: 20px; font-weight: 600; }
+  .value.in { color: var(--success); }
+  .value.out { color: var(--danger); }
+  .actions { display: flex; gap: 8px; margin-top: 12px; }
+  footer { text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 24px; }
+  #warnBlock {
+    display: none;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+  #warnBlock summary { cursor: pointer; font-weight: 500; }
+  #warnBlock ul { margin: 8px 0 0; padding-left: 18px; }
+  #warnBlock li { font-family: ui-monospace, monospace; font-size: 12px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Conversor de extrato / fatura</h1>
+  <p class="sub">Cole o texto copiado do app do banco (extrato) ou da fatura do cartão e gere o txt padronizado: data, estabelecimento, tipo de transação, valor.</p>
+
+  <div class="card">
+    <label for="input">Lançamentos</label>
+    <textarea id="input" rows="9" placeholder="Cole aqui o texto copiado do extrato ou da fatura"></textarea>
+
+    <div class="row">
+      <div>
+        <label for="modo">Tipo de origem</label>
+        <select id="modo">
+          <option value="auto">Detectar automaticamente</option>
+          <option value="extrato">Extrato conta corrente</option>
+          <option value="fatura">Fatura de cartão</option>
+        </select>
+      </div>
+      <div class="small" id="anoWrap">
+        <label for="ano">Ano</label>
+        <input id="ano" type="number" value="2026">
+      </div>
+      <div class="small">
+        <button id="gerar">Gerar txt</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:12px;">
+      <input type="checkbox" id="incluirCabecalho" style="width:auto;">
+      <label for="incluirCabecalho" style="margin:0;">Incluir linha de cabeçalho (Data / Estabelecimento / Tipo de transação / Valor)</label>
+    </div>
+    <div id="statusMsg"></div>
+    <details id="warnBlock">
+      <summary id="warnSummary">Linhas não reconhecidas</summary>
+      <ul id="warnList"></ul>
+    </details>
+  </div>
+
+  <div class="card" id="resultBlock" style="display:none;">
+    <div class="stats">
+      <div class="stat"><p class="label">Lançamentos</p><p class="value" id="statCount">0</p></div>
+      <div class="stat"><p class="label">Entradas</p><p class="value in" id="statIn">R$ 0,00</p></div>
+      <div class="stat"><p class="label">Saídas</p><p class="value out" id="statOut">R$ 0,00</p></div>
+    </div>
+    <label for="output">Pré-visualização</label>
+    <textarea id="output" rows="10" readonly></textarea>
+    <div class="actions">
+      <button class="secondary" id="copiar">Copiar</button>
+      <button id="baixar">Baixar txt</button>
+    </div>
+  </div>
+
+  <footer>Roda inteiramente no seu navegador. Nada é enviado para nenhum servidor.</footer>
+</div>
+
+<script>
+const mesesMap = {jan:'01',fev:'02',mar:'03',abr:'04',mai:'05',jun:'06',jul:'07',ago:'08',set:'09',out:'10',nov:'11',dez:'12'};
+
+function detectar(texto){
+  if(/^\s*\d{2}\/\d{2}\/\d{4}/m.test(texto)) return 'extrato';
+  if(/^\s*\d{1,2}\s+(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\.?/im.test(texto)) return 'fatura';
+  return 'extrato';
+}
+
+function categorizarExtrato(desc){
+  const d = desc.toUpperCase();
+  if(d.includes('PIX')) return 'Pix';
+  if(d.includes('COFRINHOS')) return 'Investimento';
+  if(d.includes('FOLHA PAGAMENTO')) return 'Salário';
+  if(d.includes('PRE-PAGO') || d.includes('PRÉ-PAGO')) return 'Recarga de celular';
+  if(d.includes('TED') || d.includes('DOC')) return 'Transferência';
+  if(d.includes('TARIFA')) return 'Tarifa';
+  return 'Outro';
+}
+
+function flipSinal(valorStr){
+  valorStr = valorStr.trim();
+  return valorStr.startsWith('-') ? valorStr.slice(1) : '-' + valorStr;
+}
+
+function parseExtrato(texto){
+  const linhas = texto.split('\n');
+  const out = [];
+  const skipped = [];
+  const reData = /^(\d{2}\/\d{2}\/\d{4})/;
+  const reValor = /([+-]?[\d.]+,\d{2})\s*$/;
+  for(const linhaRaw of linhas){
+    const linha = linhaRaw.trim();
+    if(!linha) continue;
+    const md = linha.match(reData);
+    const mv = linha.match(reValor);
+    if(!md || !mv){ skipped.push(linha); continue; }
+    const data = md[1];
+    let desc = linha.slice(md[0].length, mv.index).replace(/\t/g,' ').replace(/\s+/g,' ').trim();
+    if(!desc || desc.toUpperCase().includes('SALDO')) continue;
+    const tipo = categorizarExtrato(desc);
+    const valor = flipSinal(mv[1]);
+    out.push({data, desc, tipo, valor});
+  }
+  return {out, skipped};
+}
+
+function parseFatura(texto, ano){
+  const linhas = texto.split('\n');
+  const out = [];
+  const skipped = [];
+  const reData = /^(\d{1,2})\s+([a-zçA-ZÇ]{3})\.?\s+/i;
+  const reValor = /\s*(-?R\$?\s*[\d.]+,\d{2})\s*$/;
+  for(const linhaRaw of linhas){
+    const linha = linhaRaw.trim();
+    if(!linha) continue;
+    const md = linha.match(reData);
+    const mv = linha.match(reValor);
+    if(!md || !mv){ skipped.push(linha); continue; }
+    const dia = md[1].padStart(2,'0');
+    const mes = mesesMap[md[2].toLowerCase()] || '01';
+    const data = dia + '/' + mes + '/' + ano;
+    const desc = linha.slice(md[0].length, mv.index).trim();
+    if(!desc){ skipped.push(linha); continue; }
+    const virtual = /virtual/i.test(desc);
+    const tipo = virtual ? 'Virtual recorrente' : 'Físico';
+    const estabelecimento = desc.replace(/\s*virtual\s*/i, ' ').trim();
+    const valor = mv[1].replace(/\s+/g,'').replace('R$','');
+    out.push({data, desc: estabelecimento, tipo, valor});
+  }
+  return {out, skipped};
+}
+
+function paraNumero(valorStr){
+  const limpo = valorStr.replace(/\./g,'').replace(',', '.');
+  const n = parseFloat(limpo);
+  return isNaN(n) ? 0 : n;
+}
+
+function formatarMoeda(n){
+  return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+document.getElementById('modo').addEventListener('change', function(){
+  document.getElementById('anoWrap').style.display = this.value === 'extrato' ? 'none' : 'block';
+});
+
+document.getElementById('gerar').addEventListener('click', function(){
+  const texto = document.getElementById('input').value;
+  const statusMsg = document.getElementById('statusMsg');
+  const resultBlock = document.getElementById('resultBlock');
+  const warnBlock = document.getElementById('warnBlock');
+  warnBlock.style.display = 'none';
+  if(!texto.trim()){
+    statusMsg.textContent = 'Cole o texto do extrato ou da fatura antes de gerar.';
+    resultBlock.style.display = 'none';
+    return;
+  }
+  let modo = document.getElementById('modo').value;
+  if(modo === 'auto') modo = detectar(texto);
+  const ano = document.getElementById('ano').value || '2026';
+
+  const resultado = modo === 'extrato' ? parseExtrato(texto) : parseFatura(texto, ano);
+  const linhas = resultado.out;
+  const skipped = resultado.skipped;
+
+  if(linhas.length === 0){
+    statusMsg.textContent = 'Não consegui reconhecer lançamentos nesse texto. Confira o formato colado.';
+    resultBlock.style.display = 'none';
+    return;
+  }
+
+  statusMsg.textContent = 'Formato identificado: ' + (modo === 'extrato' ? 'extrato conta corrente' : 'fatura de cartão') + '.';
+
+  if(skipped.length > 0){
+    document.getElementById('warnSummary').textContent = skipped.length + ' linha(s) não reconhecida(s) — clique para ver';
+    const list = document.getElementById('warnList');
+    list.innerHTML = '';
+    skipped.forEach(l => {
+      const li = document.createElement('li');
+      li.textContent = l;
+      list.appendChild(li);
+    });
+    warnBlock.style.display = 'block';
+  }
+
+  let entradas = 0, saidas = 0;
+  const linhasTexto = linhas.map(l => {
+    const n = paraNumero(l.valor);
+    if(n < 0) entradas += Math.abs(n); else saidas += n;
+    return [l.data, l.desc, l.tipo, l.valor].map(v => v.trim()).join('\t');
+  });
+  const incluirCabecalho = document.getElementById('incluirCabecalho').checked;
+  if(incluirCabecalho){
+    linhasTexto.unshift(['Data','Estabelecimento','Tipo de transação','Valor'].join('\t'));
+  }
+  const texto_saida = linhasTexto.join('\n');
+
+  document.getElementById('statCount').textContent = linhas.length;
+  document.getElementById('statIn').textContent = formatarMoeda(entradas);
+  document.getElementById('statOut').textContent = formatarMoeda(saidas);
+  document.getElementById('output').value = texto_saida;
+  resultBlock.style.display = 'block';
+});
+
+document.getElementById('copiar').addEventListener('click', function(){
+  const out = document.getElementById('output');
+  out.select();
+  navigator.clipboard.writeText(out.value);
+  const btn = this;
+  const original = btn.textContent;
+  btn.textContent = 'Copiado';
+  setTimeout(()=>{ btn.textContent = original; }, 1500);
+});
+
+document.getElementById('baixar').addEventListener('click', function(){
+  const texto = document.getElementById('output').value;
+  const blob = new Blob([texto], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'lancamentos.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
