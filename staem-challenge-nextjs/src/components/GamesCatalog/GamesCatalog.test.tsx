@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import { GamesCatalog } from "./GamesCatalog";
 import { GAMES } from "@/data/games";
 
@@ -26,15 +27,32 @@ describe("GamesCatalog", () => {
     expect(links[0]).toHaveTextContent("Barton Lynch Pro Surfing 2022");
   });
 
-  it("loads more games when button is clicked", async () => {
-    const user = userEvent.setup();
+  it("loads more games when sentinel becomes visible", () => {
+    let observerCallback: IntersectionObserverCallback | null = null;
+
+    class SpyIntersectionObserver {
+      observe = vi.fn();
+      disconnect = vi.fn();
+      constructor(callback: IntersectionObserverCallback) {
+        observerCallback = callback;
+      }
+    }
+
+    vi.stubGlobal("IntersectionObserver", SpyIntersectionObserver);
 
     render(<GamesCatalog allGames={GAMES} pageSize={6} />);
 
     expect(screen.getAllByRole("article")).toHaveLength(6);
 
-    await user.click(screen.getByRole("button", { name: "Load more games" }));
+    act(() => {
+      observerCallback?.(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
+    });
 
     expect(screen.getAllByRole("article")).toHaveLength(12);
+
+    vi.unstubAllGlobals();
   });
 });
