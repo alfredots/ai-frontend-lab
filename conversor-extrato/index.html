@@ -150,9 +150,58 @@
 const mesesMap = {jan:'01',fev:'02',mar:'03',abr:'04',mai:'05',jun:'06',jul:'07',ago:'08',set:'09',out:'10',nov:'11',dez:'12'};
 
 function detectar(texto){
+  if(isFormatadoSemicolon(texto)) return 'formatado';
   if(/^\s*\d{2}\/\d{2}\/\d{4}/m.test(texto)) return 'extrato';
   if(/^\s*\d{1,2}\s+(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\.?/im.test(texto)) return 'fatura';
   return 'extrato';
+}
+
+function isFormatadoSemicolon(texto){
+  return texto.split('\n').some((linha) => {
+    const t = linha.trim();
+    if(!t) return false;
+    const partes = t.split(/[\t;]+/).map((p) => p.trim()).filter(Boolean);
+    return partes.length >= 4
+      && /^\d{2}\/\d{2}\/\d{4}$/.test(partes[0])
+      && /[\d.]+,\d{2}$/.test(partes[partes.length - 1]);
+  });
+}
+
+function limparSemicolon(valor){
+  return valor.replace(/^;+|;+$/g, '').trim();
+}
+
+function parseFormatado(texto){
+  const linhas = texto.split('\n');
+  const out = [];
+  const skipped = [];
+  const reValor = /^([+-]?[\d.]+,\d{2})$/;
+
+  for(const linhaRaw of linhas){
+    const linha = linhaRaw.trim();
+    if(!linha) continue;
+
+    const partes = linha.split(/[\t;]+/).map((p) => limparSemicolon(p)).filter(Boolean);
+    if(partes.length < 4 || !/^\d{2}\/\d{2}\/\d{4}$/.test(partes[0])){
+      skipped.push(linha);
+      continue;
+    }
+
+    const data = partes[0];
+    const valorRaw = partes[partes.length - 1];
+    const tipo = partes[partes.length - 2];
+    const desc = partes.slice(1, partes.length - 2).join(' ').trim();
+    const mv = valorRaw.match(reValor);
+
+    if(!desc || !mv){
+      skipped.push(linha);
+      continue;
+    }
+
+    out.push({data, desc, tipo, valor: mv[1]});
+  }
+
+  return {out, skipped};
 }
 
 function categorizarExtrato(desc){
@@ -185,6 +234,7 @@ function parseExtrato(texto){
     if(!md || !mv){ skipped.push(linha); continue; }
     const data = md[1];
     let desc = linha.slice(md[0].length, mv.index).replace(/\t/g,' ').replace(/\s+/g,' ').trim();
+    desc = limparSemicolon(desc);
     if(!desc || desc.toUpperCase().includes('SALDO')) continue;
     const tipo = categorizarExtrato(desc);
     const valor = flipSinal(mv[1]);
@@ -248,7 +298,11 @@ document.getElementById('gerar').addEventListener('click', function(){
   if(modo === 'auto') modo = detectar(texto);
   const ano = document.getElementById('ano').value || '2026';
 
-  const resultado = modo === 'extrato' ? parseExtrato(texto) : parseFatura(texto, ano);
+  const resultado = modo === 'extrato'
+    ? parseExtrato(texto)
+    : modo === 'fatura'
+      ? parseFatura(texto, ano)
+      : parseFormatado(texto);
   const linhas = resultado.out;
   const skipped = resultado.skipped;
 
@@ -258,7 +312,11 @@ document.getElementById('gerar').addEventListener('click', function(){
     return;
   }
 
-  statusMsg.textContent = 'Formato identificado: ' + (modo === 'extrato' ? 'extrato conta corrente' : 'fatura de cartão') + '.';
+  statusMsg.textContent = 'Formato identificado: ' + (
+    modo === 'extrato' ? 'extrato conta corrente'
+    : modo === 'fatura' ? 'fatura de cartão'
+    : 'txt com ponto e vírgula'
+  ) + '.';
 
   if(skipped.length > 0){
     document.getElementById('warnSummary').textContent = skipped.length + ' linha(s) não reconhecida(s) — clique para ver';
