@@ -95,7 +95,7 @@
 <body>
 <div class="wrap">
   <h1>Conversor de extrato / fatura</h1>
-  <p class="sub">Cole o texto copiado do app do banco (extrato) ou da fatura do cartão e gere o txt padronizado: data, estabelecimento, tipo de transação, valor.</p>
+  <p class="sub">Cole o texto copiado do app do banco (extrato) ou da fatura do cartão e gere o txt padronizado: data, estabelecimento, tipo de transação, parcela e valor.</p>
 
   <div class="card">
     <label for="input">Lançamentos</label>
@@ -120,7 +120,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:6px;margin-top:12px;">
       <input type="checkbox" id="incluirCabecalho" style="width:auto;">
-      <label for="incluirCabecalho" style="margin:0;">Incluir linha de cabeçalho (Data / Estabelecimento / Tipo de transação / Valor)</label>
+      <label for="incluirCabecalho" style="margin:0;">Incluir linha de cabeçalho (Data / Estabelecimento / Tipo de transação / Parcela / Valor)</label>
     </div>
     <div id="statusMsg"></div>
     <details id="warnBlock">
@@ -171,6 +171,72 @@ function limparSemicolon(valor){
   return valor.replace(/^;+|;+$/g, '').trim();
 }
 
+function isLinhaParcela(texto){
+  return /^parcela\s+\d+\s+de\s+\d+\s*$/i.test(texto.trim());
+}
+
+function extrairParcela(texto){
+  if(!texto) return null;
+  const t = texto.trim();
+
+  let m = t.match(/^parcela\s+(\d+)\s+de\s+(\d+)\s*$/i);
+  if(m){
+    return {
+      atual: +m[1],
+      total: +m[2],
+      label: `Parcela ${m[1]}/${m[2]}`,
+      descricaoLimpa: '',
+    };
+  }
+
+  m = t.match(/\(?\s*[Pp]arcela\s+(\d+)\s*\/\s*(\d+)\s*\)?/);
+  if(m){
+    return {
+      atual: +m[1],
+      total: +m[2],
+      label: `Parcela ${m[1]}/${m[2]}`,
+      descricaoLimpa: t.replace(m[0], ' ').replace(/\(\s*\)/g, '').replace(/\s+/g, ' ').trim(),
+    };
+  }
+
+  m = t.match(/\((\d{1,2})\s*\/\s*(\d{1,2})\)\s*$/);
+  if(m && +m[1] <= +m[2] && +m[2] <= 48){
+    return {
+      atual: +m[1],
+      total: +m[2],
+      label: `Parcela ${m[1]}/${m[2]}`,
+      descricaoLimpa: t.slice(0, m.index).trim(),
+    };
+  }
+
+  m = t.match(/\b(\d{1,2})\/(\d{1,2})\s*$/);
+  if(m && +m[1] >= 1 && +m[1] <= +m[2] && +m[2] <= 48){
+    return {
+      atual: +m[1],
+      total: +m[2],
+      label: `Parcela ${m[1]}/${m[2]}`,
+      descricaoLimpa: t.slice(0, m.index).trim(),
+    };
+  }
+
+  return null;
+}
+
+function resolverParcela(desc, parcelaExtra){
+  let descFinal = desc;
+  let parcela = '';
+
+  const parcelaDesc = extrairParcela(desc);
+  if(parcelaDesc){
+    parcela = parcelaDesc.label;
+    if(parcelaDesc.descricaoLimpa) descFinal = parcelaDesc.descricaoLimpa;
+  }
+  if(parcelaExtra) parcela = parcelaExtra.label;
+
+  descFinal = descFinal.replace(/[\s\-–]+$/,'').trim();
+  return { desc: descFinal, parcela };
+}
+
 function parseFormatado(texto){
   const linhas = texto.split('\n');
   const out = [];
@@ -189,8 +255,21 @@ function parseFormatado(texto){
 
     const data = partes[0];
     const valorRaw = partes[partes.length - 1];
-    const tipo = partes[partes.length - 2];
-    const desc = partes.slice(1, partes.length - 2).join(' ').trim();
+    let tipo, desc, parcela = '';
+
+    if(partes.length >= 5){
+      parcela = partes[partes.length - 2];
+      tipo = partes[partes.length - 3];
+      desc = partes.slice(1, partes.length - 3).join(' ').trim();
+    } else {
+      tipo = partes[partes.length - 2];
+      desc = partes.slice(1, partes.length - 2).join(' ').trim();
+      const parcelaInfo = extrairParcela(desc);
+      if(parcelaInfo){
+        parcela = parcelaInfo.label;
+        desc = parcelaInfo.descricaoLimpa;
+      }
+    }
     const mv = valorRaw.match(reValor);
 
     if(!desc || !mv){
@@ -198,7 +277,7 @@ function parseFormatado(texto){
       continue;
     }
 
-    out.push({data, desc, tipo, valor: mv[1]});
+    out.push({data, desc, tipo, parcela, valor: mv[1]});
   }
 
   return {out, skipped};
@@ -221,51 +300,174 @@ function flipSinal(valorStr){
 }
 
 function parseExtrato(texto){
-  const linhas = texto.split('\n');
+  const linhasRaw = texto.split('\n').map(l => l.trim());
+  const reData = /^(\d{2}\/\d{2}\/\d{4})/;
+  const reValorFull = /^([+-]?[\d.]+,\d{2})$/;
+  const reValorEnd = /([+-]?[\d.]+,\d{2})\s*$/;
+
+  // agrupa as linhas em blocos: cada bloco começa numa linha com data
+  // (suporta tanto "data + descrição + valor" na mesma linha quanto
+  // cada campo em uma linha separada, como ao colar direto do app do banco)
+  const blocos = [];
+  let atual = null;
+  for(const linha of linhasRaw){
+    if(!linha) continue;
+    if(reData.test(linha)){
+      if(atual) blocos.push(atual);
+      atual = [linha];
+    } else if(atual){
+      atual.push(linha);
+    } else {
+      blocos.push([linha]);
+    }
+  }
+  if(atual) blocos.push(atual);
+
   const out = [];
   const skipped = [];
-  const reData = /^(\d{2}\/\d{2}\/\d{4})/;
-  const reValor = /([+-]?[\d.]+,\d{2})\s*$/;
-  for(const linhaRaw of linhas){
-    const linha = linhaRaw.trim();
-    if(!linha) continue;
-    const md = linha.match(reData);
-    const mv = linha.match(reValor);
-    if(!md || !mv){ skipped.push(linha); continue; }
+
+  for(const bloco of blocos){
+    const primeira = bloco[0];
+    const md = primeira.match(reData);
+    if(!md){ bloco.forEach(l => skipped.push(l)); continue; }
+
+    const restoPrimeira = primeira.slice(md[0].length).trim();
+    let parcelaExtra = null;
+    const restoBruto = restoPrimeira ? [restoPrimeira, ...bloco.slice(1)] : bloco.slice(1);
+    const resto = [];
+    for(const parte of restoBruto){
+      if(isLinhaParcela(parte)){
+        parcelaExtra = extrairParcela(parte);
+      } else {
+        resto.push(parte);
+      }
+    }
+    if(resto.length === 0){ skipped.push(primeira); continue; }
+
+    let valorRaw, descParts;
+    let valorIdx = -1;
+    for(let i = resto.length - 1; i >= 0; i--){
+      if(reValorFull.test(resto[i])){ valorIdx = i; break; }
+    }
+
+    if(valorIdx !== -1){
+      valorRaw = resto[valorIdx].match(reValorFull)[1];
+      descParts = resto.slice(0, valorIdx).concat(resto.slice(valorIdx + 1));
+    } else {
+      const ultima = resto[resto.length - 1];
+      const mv = ultima.match(reValorEnd);
+      if(!mv){ bloco.forEach(l => skipped.push(l)); continue; }
+      valorRaw = mv[1];
+      const descUltima = ultima.slice(0, mv.index).trim();
+      descParts = resto.slice(0, -1).concat(descUltima ? [descUltima] : []);
+    }
+
     const data = md[1];
-    let desc = linha.slice(md[0].length, mv.index).replace(/\t/g,' ').replace(/\s+/g,' ').trim();
+    let desc = descParts.join(' ').replace(/\t/g,' ').replace(/\s+/g,' ').trim();
     desc = limparSemicolon(desc);
     if(!desc || desc.toUpperCase().includes('SALDO')) continue;
+    const parcelaInfo = resolverParcela(desc, parcelaExtra);
+    desc = parcelaInfo.desc;
     const tipo = categorizarExtrato(desc);
-    const valor = flipSinal(mv[1]);
-    out.push({data, desc, tipo, valor});
+    const valor = flipSinal(valorRaw);
+    out.push({data, desc, tipo, parcela: parcelaInfo.parcela, valor});
   }
   return {out, skipped};
 }
 
 function parseFatura(texto, ano){
-  const linhas = texto.split('\n');
-  const out = [];
-  const skipped = [];
-  const reData = /^(\d{1,2})\s+([a-zçA-ZÇ]{3})\.?\s+/i;
-  const reValor = /\s*(-?R\$?\s*[\d.]+,\d{2})\s*$/;
-  for(const linhaRaw of linhas){
-    const linha = linhaRaw.trim();
+  const linhasRaw = texto.split('\n').map(l => l.trim());
+  const reData = /^(\d{1,2})\s+([a-zçA-ZÇ]{3})\.?\s*(.*)$/i;
+  const reValorFull = /^(-?R\$?\s*[\d.]+,\d{2})$/;
+  const reValorEnd = /(-?R\$?\s*[\d.]+,\d{2})\s*$/;
+
+  const blocos = [];
+  let atual = null;
+  for(const linha of linhasRaw){
     if(!linha) continue;
     const md = linha.match(reData);
-    const mv = linha.match(reValor);
-    if(!md || !mv){ skipped.push(linha); continue; }
-    const dia = md[1].padStart(2,'0');
-    const mes = mesesMap[md[2].toLowerCase()] || '01';
+    if(md){
+      if(atual) blocos.push(atual);
+      atual = {
+        dia: md[1],
+        mes: md[2],
+        linhas: md[3] ? [md[3].trim()].filter(Boolean) : [],
+      };
+    } else if(atual){
+      atual.linhas.push(linha);
+    } else {
+      blocos.push({ dia: null, mes: null, linhas: [linha] });
+    }
+  }
+  if(atual) blocos.push(atual);
+
+  const out = [];
+  const skipped = [];
+
+  for(const bloco of blocos){
+    if(!bloco.dia){
+      bloco.linhas.forEach(l => skipped.push(l));
+      continue;
+    }
+
+    const dia = bloco.dia.padStart(2,'0');
+    const mes = mesesMap[bloco.mes.toLowerCase()] || '01';
     const data = dia + '/' + mes + '/' + ano;
-    const desc = linha.slice(md[0].length, mv.index).trim();
-    if(!desc){ skipped.push(linha); continue; }
+
+    let parcelaExtra = null;
+    const conteudo = [];
+    for(const linha of bloco.linhas){
+      if(isLinhaParcela(linha)){
+        parcelaExtra = extrairParcela(linha);
+      } else {
+        conteudo.push(linha);
+      }
+    }
+
+    if(conteudo.length === 0){
+      skipped.push(`${bloco.dia} ${bloco.mes}`);
+      continue;
+    }
+
+    let valorRaw = null;
+    let descParts = [];
+    for(let i = conteudo.length - 1; i >= 0; i--){
+      const full = conteudo[i].match(reValorFull);
+      if(full){
+        valorRaw = full[1];
+        const descLinha = conteudo[i].slice(0, conteudo[i].indexOf(full[1])).trim();
+        descParts = conteudo.slice(0, i).concat(descLinha ? [descLinha] : []);
+        break;
+      }
+    }
+
+    if(!valorRaw){
+      const ultima = conteudo[conteudo.length - 1];
+      const mv = ultima.match(reValorEnd);
+      if(!mv){
+        bloco.linhas.forEach(l => skipped.push(l));
+        continue;
+      }
+      valorRaw = mv[1];
+      const descUltima = ultima.slice(0, mv.index).trim();
+      descParts = conteudo.slice(0, -1).concat(descUltima ? [descUltima] : []);
+    }
+
+    let desc = descParts.join(' ').replace(/\s+/g, ' ').trim();
+    if(!desc && !parcelaExtra){
+      bloco.linhas.forEach(l => skipped.push(l));
+      continue;
+    }
+
+    const parcelaInfo = resolverParcela(desc, parcelaExtra);
+    desc = parcelaInfo.desc;
     const virtual = /virtual/i.test(desc);
     const tipo = virtual ? 'Virtual recorrente' : 'Físico';
     const estabelecimento = desc.replace(/\s*virtual\s*/i, ' ').trim();
-    const valor = mv[1].replace(/\s+/g,'').replace('R$','');
-    out.push({data, desc: estabelecimento, tipo, valor});
+    const valor = valorRaw.replace(/\s+/g,'').replace('R$','');
+    out.push({data, desc: estabelecimento, tipo, parcela: parcelaInfo.parcela, valor});
   }
+
   return {out, skipped};
 }
 
@@ -334,11 +536,11 @@ document.getElementById('gerar').addEventListener('click', function(){
   const linhasTexto = linhas.map(l => {
     const n = paraNumero(l.valor);
     if(n < 0) entradas += Math.abs(n); else saidas += n;
-    return [l.data, l.desc, l.tipo, l.valor].map(v => v.trim()).join('\t');
+    return [l.data, l.desc, l.tipo, l.parcela || '', l.valor].map(v => v.trim()).join('\t');
   });
   const incluirCabecalho = document.getElementById('incluirCabecalho').checked;
   if(incluirCabecalho){
-    linhasTexto.unshift(['Data','Estabelecimento','Tipo de transação','Valor'].join('\t'));
+    linhasTexto.unshift(['Data','Estabelecimento','Tipo de transação','Parcela','Valor'].join('\t'));
   }
   const texto_saida = linhasTexto.join('\n');
 
