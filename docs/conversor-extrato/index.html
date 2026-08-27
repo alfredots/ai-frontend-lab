@@ -95,7 +95,7 @@
 <body>
 <div class="wrap">
   <h1>Conversor de extrato / fatura</h1>
-  <p class="sub">Cole o texto copiado do app do banco (extrato) ou da fatura do cartão e gere o txt padronizado: data, estabelecimento, tipo de transação, parcela e valor.</p>
+  <p class="sub">Cole o texto copiado do app do banco (extrato) ou da fatura do cartão e gere o txt padronizado: data, estabelecimento, tipo de transação e valor.</p>
 
   <div class="card">
     <label for="input">Lançamentos</label>
@@ -120,7 +120,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:6px;margin-top:12px;">
       <input type="checkbox" id="incluirCabecalho" style="width:auto;">
-      <label for="incluirCabecalho" style="margin:0;">Incluir linha de cabeçalho (Data / Estabelecimento / Tipo de transação / Parcela / Valor)</label>
+      <label for="incluirCabecalho" style="margin:0;">Incluir linha de cabeçalho (Data / Estabelecimento / Tipo de transação / Valor)</label>
     </div>
     <div id="statusMsg"></div>
     <details id="warnBlock">
@@ -536,11 +536,11 @@ document.getElementById('gerar').addEventListener('click', function(){
   const linhasTexto = linhas.map(l => {
     const n = paraNumero(l.valor);
     if(n < 0) entradas += Math.abs(n); else saidas += n;
-    return [l.data, l.desc, l.tipo, l.parcela || '', l.valor].map(v => v.trim()).join('\t');
+    return [l.data, l.desc, l.tipo, l.valor].map(v => v.trim()).join('\t');
   });
   const incluirCabecalho = document.getElementById('incluirCabecalho').checked;
   if(incluirCabecalho){
-    linhasTexto.unshift(['Data','Estabelecimento','Tipo de transação','Parcela','Valor'].join('\t'));
+    linhasTexto.unshift(['Data','Estabelecimento','Tipo de transação','Valor'].join('\t'));
   }
   const texto_saida = linhasTexto.join('\n');
 
