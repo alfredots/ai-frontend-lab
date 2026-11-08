@@ -9,6 +9,7 @@ Repositório de estudos e experimentos com Frontend + Inteligência Artificial. 
 - [Bugdet Sign-In (Evergreen Ledger)](https://alfredots.github.io/ai-frontend-lab/evergreen-ledger-login/)
 - [STAEM Challenge (Next.js)](https://alfredots.github.io/ai-frontend-lab/staem-challenge-nextjs/)
 - [UNX App (Astro)](https://alfredots.github.io/ai-frontend-lab/unx-app-astro-version/)
+- [Comparador de Preço por Unidade](https://alfredots.github.io/ai-frontend-lab/comparador-preco-unidade/)
 
 ## GitHub Pages automatico
 

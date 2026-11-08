@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparador de Preço por Unidade</title>
+<style>
+  :root {
+    --bg: #fdf8f0;
+    --bg-elevated: #ffffff;
+    --bg-card: #fffdf9;
+    --border: #eee0cc;
+    --text: #3a2e1f;
+    --text-muted: #9c8c73;
+    --accent: #f4a93a;
+    --accent-hover: #e8942a;
+    --best: #2f9e5a;
+    --best-bg: rgba(47, 158, 90, 0.08);
+    --danger: #e0622f;
+    --radius: 18px;
+    --shadow: 0 6px 24px rgba(180, 140, 70, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23f4a93a' opacity='0.08'/%3E%3C/svg%3E");
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 28px; }
+  header h1 { font-size: 1.7rem; margin: 0 0 6px; color: #2f6b45; }
+  header p { color: var(--text-muted); margin: 0; font-size: 0.95rem; }
+
+  .panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .panel h2 {
+    font-size: 1rem;
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  form.add-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.75rem; color: var(--text-muted); }
+
+  input, select {
+    background: #fffaf0;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(244, 169, 58, 0.25);
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: transform 0.15s, background 0.2s, opacity 0.2s;
+  }
+
+  button:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 18px;
+    box-shadow: 0 3px 10px rgba(244, 169, 58, 0.35);
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 9px 16px;
+  }
+  .btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 9px 16px;
+  }
+  .btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+  .actions-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .need-row {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+    flex-wrap: wrap;
+  }
+  .need-row .field { flex: 1; min-width: 140px; }
+
+  .cards {
+    display: grid;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card.best {
+    border-color: var(--best);
+    background: linear-gradient(135deg, var(--best-bg), var(--bg-card));
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    background: var(--best);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+  }
+
+  .card-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
+  .card-price {
+    text-align: right;
+  }
+
+  .unit-price {
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .card.best .unit-price { color: var(--best); }
+
+  .diff {
+    font-size: 0.78rem;
+    color: var(--danger);
+    margin-top: 2px;
+  }
+
+  .card.best .diff { color: var(--best); }
+
+  .need-info {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .need-info strong { color: var(--text); }
+
+  .remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+  .remove-btn:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 30px 10px;
+    font-size: 0.9rem;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 640px) {
+    form.add-form {
+      grid-template-columns: 1fr 1fr;
+    }
+    form.add-form .field:nth-child(1) { grid-column: 1 / -1; }
+    form.add-form button { grid-column: 1 / -1; }
+    .card-top { flex-direction: column; }
+    .card-price { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>💰 Comparador de Preço por Unidade</h1>
+    <p>Descubra qual produto realmente vale mais a pena comprar</p>
+  </header>
+
+  <section class="panel">
+    <h2>➕ Adicionar produto</h2>
+    <form class="add-form" id="productForm">
+      <div class="field">
+        <label for="name">Nome do produto</label>
+        <input type="text" id="name" placeholder="Ex: Arroz Tio João" required>
+      </div>
+      <div class="field">
+        <label for="price">Preço (R$)</label>
+        <input type="number" id="price" placeholder="0,00" step="0.01" min="0" required>
+      </div>
+      <div class="field">
+        <label for="quantity">Quantidade</label>
+        <input type="number" id="quantity" placeholder="0" step="0.01" min="0" required>
+      </div>
+      <div class="field">
+        <label for="unit">Unidade</label>
+        <select id="unit">
+          <option value="L">Litro (L)</option>
+          <option value="mL">Mililitro (mL)</option>
+          <option value="kg">Quilograma (kg)</option>
+          <option value="g">Grama (g)</option>
+          <option value="un">Unidade (un)</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-primary">Adicionar</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>🎯 Quanto você precisa?</h2>
+    <div class="need-row">
+      <div class="field">
+        <label for="needAmount">Quantidade desejada</label>
+        <input type="number" id="needAmount" placeholder="Ex: 5" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label for="needUnit">Unidade base</label>
+        <select id="needUnit">
+          <option value="L">Litro (L) / mL</option>
+          <option value="kg">Quilograma (kg) / g</option>
+          <option value="un">Unidade (un)</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>📊 Comparação</h2>
+    <div id="cardsContainer" class="cards">
+      <div class="empty-state" id="emptyState">Nenhum produto adicionado ainda. Adicione produtos acima para comparar.</div>
+    </div>
+    <div class="actions-row">
+      <button type="button" class="btn-secondary" id="clearStorageBtn">Começar do zero</button>
+      <button type="button" class="btn-danger" id="clearAllBtn">Remover todos</button>
+    </div>
+  </section>
+
+  <footer>Os dados ficam salvos apenas no seu navegador (localStorage).</footer>
+</div>
+
+<script>
+  const STORAGE_KEY = 'comparador-preco-unidade:produtos';
+
+  // Fatores de conversão para a unidade base (L, kg, un)
+  const UNIT_INFO = {
+    L:  { base: 'L',  factor: 1 },
+    mL: { base: 'L',  factor: 0.001 },
+    kg: { base: 'kg', factor: 1 },
+    g:  { base: 'kg', factor: 0.001 },
+    un: { base: 'un', factor: 1 },
+  };
+
+  const BASE_LABEL = { L: 'litro', kg: 'kg', un: 'unidade' };
+
+  const form = document.getElementById('productForm');
+  const nameInput = document.getElementById('name');
+  const priceInput = document.getElementById('price');
+  const quantityInput = document.getElementById('quantity');
+  const unitSelect = document.getElementById('unit');
+  const needAmountInput = document.getElementById('needAmount');
+  const needUnitSelect = document.getElementById('needUnit');
+  const cardsContainer = document.getElementById('cardsContainer');
+  const emptyState = document.getElementById('emptyState');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+  const clearStorageBtn = document.getElementById('clearStorageBtn');
+
+  let products = loadProducts();
+
+  function loadProducts() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveProducts() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  }
+
+  function formatMoney(value) {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  function formatQty(value) {
+    return value.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
+  }
+
+  // Converte quantidade + unidade para a unidade base (litro, kg ou unidade)
+  function toBaseQuantity(quantity, unit) {
+    const info = UNIT_INFO[unit];
+    return { amount: quantity * info.factor, base: info.base };
+  }
+
+  function computeUnitPrices() {
+    return products.map(p => {
+      const { amount, base } = toBaseQuantity(p.quantity, p.unit);
+      const pricePerBase = amount > 0 ? p.price / amount : Infinity;
+      return { ...p, baseAmount: amount, base, pricePerBase };
+    });
+  }
+
+  function render() {
+    const computed = computeUnitPrices();
+
+    if (computed.length === 0) {
+      cardsContainer.innerHTML = '';
+      cardsContainer.appendChild(emptyState);
+      return;
+    }
+
+    // Melhor preço por unidade considerando apenas produtos da mesma unidade base
+    const baseGroups = {};
+    computed.forEach(p => {
+      if (!baseGroups[p.base]) baseGroups[p.base] = [];
+      baseGroups[p.base].push(p);
+    });
+
+    const bestByBase = {};
+    Object.keys(baseGroups).forEach(base => {
+      bestByBase[base] = Math.min(...baseGroups[base].map(p => p.pricePerBase));
+    });
+
+    const needAmount = parseFloat(needAmountInput.value);
+    const needUnit = needUnitSelect.value;
+    const hasNeed = !isNaN(needAmount) && needAmount > 0;
+
+    cardsContainer.innerHTML = '';
+
+    computed
+      .sort((a, b) => a.pricePerBase - b.pricePerBase)
+      .forEach(p => {
+        const isBest = p.pricePerBase === bestByBase[p.base];
+        const diffPct = isBest ? 0 : ((p.pricePerBase - bestByBase[p.base]) / p.pricePerBase) * 100;
+
+        const card = document.createElement('div');
+        card.className = 'card' + (isBest ? ' best' : '');
+
+        let needInfoHtml = '';
+        if (hasNeed && needUnit === p.base) {
+          const packagesNeeded = Math.ceil(needAmount / p.baseAmount);
+          const totalCost = packagesNeeded * p.price;
+          needInfoHtml = `
+            <div class="need-info">
+              <span>📦 Embalagens necessárias: <strong>${packagesNeeded}</strong></span>
+              <span>💵 Custo total: <strong>${formatMoney(totalCost)}</strong></span>
+            </div>`;
+        }
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div>
+              <div class="card-name">
+                ${escapeHtml(p.name)}
+                ${isBest ? '<span class="badge">✓ Melhor opção</span>' : ''}
+              </div>
+              <div class="card-meta">${formatMoney(p.price)} · ${formatQty(p.quantity)} ${p.unit}</div>
+            </div>
+            <div class="card-price">
+              <div class="unit-price">${formatMoney(p.pricePerBase)} / ${BASE_LABEL[p.base]}</div>
+              ${!isBest ? `<div class="diff">Melhor opção é ${diffPct.toFixed(1)}% mais barata</div>` : ''}
+            </div>
+            <button class="remove-btn" data-id="${p.id}" title="Remover">✕</button>
+          </div>
+          ${needInfoHtml}
+        `;
+
+        cardsContainer.appendChild(card);
+      });
+
+    cardsContainer.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => removeProduct(btn.dataset.id));
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function removeProduct(id) {
+    products = products.filter(p => p.id !== id);
+    saveProducts();
+    render();
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+    const quantity = parseFloat(quantityInput.value);
+    const unit = unitSelect.value;
+
+    if (!name || isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) return;
+
+    products.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      name, price, quantity, unit,
+    });
+
+    saveProducts();
+    render();
+    form.reset();
+    nameInput.focus();
+  });
+
+  clearAllBtn.addEventListener('click', () => {
+    if (products.length === 0) return;
+    if (!confirm('Remover todos os produtos da comparação?')) return;
+    products = [];
+    saveProducts();
+    render();
+  });
+
+  clearStorageBtn.addEventListener('click', () => {
+    if (!confirm('Isso vai apagar todos os produtos salvos e começar do zero. Continuar?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    products = [];
+    render();
+  });
+
+  needAmountInput.addEventListener('input', render);
+  needUnitSelect.addEventListener('change', render);
+
+  render();
+</script>
+</body>
+</html>
